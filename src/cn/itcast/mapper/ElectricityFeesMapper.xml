@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.itcast.mapper.ElectricityFeesMapper">
+    <resultMap id="BaseResultMap" type="cn.itcast.pojo.ElectricityFees" >
+        <id column="EleF_id" property="eleF_id" jdbcType="VARCHAR" />
+        <result column="sitename" property="sitename" jdbcType="VARCHAR" />
+        <result column="unitprice" property="unitprice" jdbcType="FLOAT" />
+        <result column="balance" property="balance" jdbcType="FLOAT" />
+        <result column="predeposit" property="predeposit" jdbcType="FLOAT" />
+        <result column="meterrise" property="meterrise" jdbcType="FLOAT" />
+        <result column="meterstop" property="meterstop" jdbcType="FLOAT" />
+        <result column="eleconsumption" property="eleconsumption" jdbcType="FLOAT" />
+        <result column="loss" property="loss" jdbcType="FLOAT" />
+        <result column="taxation" property="taxation" jdbcType="FLOAT" />
+        <result column="agriculturaleleadd" property="agriculturaleleadd" jdbcType="FLOAT" />
+        <result column="bSARUnicom" property="bSARUnicom" jdbcType="FLOAT" />
+        <result column="bSARMobile" property="bSARMobile" jdbcType="FLOAT" />
+        <result column="bSARTelecom" property="bSARTelecom" jdbcType="FLOAT" />
+        <result column="totalcost" property="totalcost" jdbcType="FLOAT" />
+        <result column="meterreading" property="meterreading" jdbcType="FLOAT" />
+        <result column="monthfolding" property="monthfolding" jdbcType="FLOAT" />
+    </resultMap>
+
+
+    <select id="findEleCont" resultType="Integer">
+        select COUNT(*) from ElectricityFees
+    </select>
+
+    <select id="findElePage" parameterType="int" resultType="cn.itcast.pojo.ElectricityFees">
+      SELECT TOP 50 * FROM ElectricityFees
+      WHERE (EleF_id not in (SELECT TOP ${value} EleF_id FROM ElectricityFees))
+    </select>
+
+    <select id="findAll" resultType="cn.itcast.pojo.ElectricityFees">
+        select * from ElectricityFees
+    </select>
+
+    <select id="conditionquery" parameterType="string" resultType="cn.itcast.pojo.ElectricityFees">
+        select * from ElectricityFees where Sitename = #{0}
+    </select>
+
+
+</mapper>
