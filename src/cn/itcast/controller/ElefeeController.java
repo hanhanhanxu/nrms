@@ -3,20 +3,27 @@ package cn.itcast.controller;
 import cn.itcast.pojo.ElectricityFees;
 import cn.itcast.pojo.Page;
 import cn.itcast.service.ElefeeService;
+import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.text.DateFormat;
 import java.util.List;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/ElefeeController")
@@ -57,6 +64,70 @@ public class ElefeeController {
         return "/a.jsp";
     }
 
+
+    @RequestMapping("/addRecordEle")
+    public String addRecordEle(@RequestParam("file") CommonsMultipartFile file,
+                            HttpServletRequest request) {
+        // 获得项目的路径
+        ServletContext sc = request.getSession().getServletContext();
+        System.out.println("项目的路径：" + sc);
+        // 上传位置
+        String path = sc.getRealPath("\\table") + "\\"; // 设定文件保存的目录
+        System.out.println("文件保存的路径：" + path);
+        File f = new File(path);
+        if (!f.exists())
+            f.mkdirs();
+
+        // 获得原始文件名
+        String fileName = file.getOriginalFilename();
+        System.out.println("原始文件名:" + fileName);
+        // 新文件名
+        String newFileName = UUID.randomUUID() + fileName;
+        System.out.println("新文件名:" + newFileName);
+        int b;
+        if (!file.isEmpty()) {
+            try {
+                FileOutputStream fos = new FileOutputStream(path + newFileName);
+                InputStream in = file.getInputStream();
+                while ((b = in.read()) != -1) {
+                    fos.write(b);
+                }
+                fos.close();
+                in.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            HSSFWorkbook workbook = new HSSFWorkbook(new FileInputStream(new File(path + newFileName)));
+            HSSFSheet sheet = null;
+            int i = workbook.getSheetIndex("成绩表"); // sheet表名
+            sheet = workbook.getSheetAt(i);
+            for (int j = 0; j < sheet.getLastRowNum() + 1; j++) {// getLastRowNum
+                // 获取最后一行的行标
+                HSSFRow row = sheet.getRow(j);
+                if (row != null) {
+                    for (int k = 0; k < row.getLastCellNum(); k++) {// getLastCellNum
+                        // 是获取最后一个不为空的列是第几个
+                        if (row.getCell(k) != null) { // getCell 获取单元格数据
+                            System.out.print(row.getCell(k) + "\t");
+                        } else {
+                            System.out.print("\t");
+                        }
+                    }
+                }
+                System.out.println("");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println("有异常！！！");
+        }
+        //System.out.println("上传文件到:" + path + newFileName);
+        System.out.println("输出完毕*************************************");
+        return "/error.jsp";
+    }
+
     @RequestMapping("/down")//导出为xls后缀的excel文件
     public String down(HttpServletResponse response,HttpServletRequest request,String totalPageCount,String pageNow){
         int size = 50;//jsp页面每页显示多少条数据
@@ -76,7 +147,7 @@ public class ElefeeController {
         //创建HSSFWorkbook对象(excel的文档对象)
         HSSFWorkbook wb = new HSSFWorkbook();
         //建立新的sheet对象（excel的表单）
-        HSSFSheet sheet=wb.createSheet("成绩表");//好像没用，没体现出来“成绩表”这三个字在哪
+        HSSFSheet sheet=wb.createSheet("成绩表");//读的时候要知道是哪个表
 
 
         //在sheet里创建第一行，参数为行索引(excel的行)，可以是0～65535之间的任何一个
