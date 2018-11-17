@@ -22,8 +22,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.text.DateFormat;
-import java.util.List;
-import java.util.UUID;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Controller
 @RequestMapping("/ElefeeController")
@@ -84,7 +84,7 @@ public class ElefeeController {
         // 新文件名
         String newFileName = UUID.randomUUID() + fileName;
         System.out.println("新文件名:" + newFileName);
-        int b;
+        int b , r = 17 , w = 18;
         if (!file.isEmpty()) {
             try {
                 FileOutputStream fos = new FileOutputStream(path + newFileName);
@@ -98,33 +98,61 @@ public class ElefeeController {
                 e.printStackTrace();
             }
         }
-
         try {
             HSSFWorkbook workbook = new HSSFWorkbook(new FileInputStream(new File(path + newFileName)));
             HSSFSheet sheet = null;
             int i = workbook.getSheetIndex("成绩表"); // sheet表名
             sheet = workbook.getSheetAt(i);
-            for (int j = 0; j < sheet.getLastRowNum() + 1; j++) {// getLastRowNum
-                // 获取最后一行的行标
+            List list = new ArrayList();
+
+            //如果有8行数据  则sheet.getLastRowNum()为7
+            int j = 0;
+            for (j = 0; j < sheet.getLastRowNum() + 1; j++) {
                 HSSFRow row = sheet.getRow(j);
                 if (row != null) {
-                    for (int k = 0; k < row.getLastCellNum(); k++) {// getLastCellNum
-                        // 是获取最后一个不为空的列是第几个
-                        if (row.getCell(k) != null) { // getCell 获取单元格数据
-                            System.out.print(row.getCell(k) + "\t");
+                    //如果有18列数据  则row.getLastCellNum()为18
+                    for (int k = 0; k < row.getLastCellNum(); k++) {
+                        if (row.getCell(k) != null) {
+                            if(k==r){
+                                //添加第18列日期数据
+                                String[] Dstring = row.getCell(k).toString().split("\\.");
+                                if(3==Dstring.length){
+                                    String dstr = new String(Dstring[0]+"-"+Dstring[1]+"-"+Dstring[2]);
+                                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                                    Date date  = null;
+                                    try {
+                                        date  = sdf.parse(dstr);
+                                    }catch (Exception e){
+                                        e.printStackTrace();
+                                        System.out.println("创建时间有异常***");
+                                    }
+                                    list.add(date);
+                                }else{
+                                    list.add(row.getCell(k));//第18列也有可能不是日期数据
+                                }
+                            }else{
+                                list.add(row.getCell(k));//添加前17列非日期数据
+                            }
+                            //System.out.print(row.getCell(k) + "\t");//输出数据
                         } else {
-                            System.out.print("\t");
+                            list.add("");//把空串添加进去
+                            //System.out.print("\t");//把空的地方输出
                         }
-                    }
+                    }//内层for循环
                 }
-                System.out.println("");
-            }
+                //System.out.println("");//换行输出
+
+                //第一行列头不弄进数据库
+                if(j>1){
+                    ElectricityFees e = new ElectricityFees(list.get(0).toString(),list.get(1).toString(),Float.parseFloat(list.get(2).toString()),Float.parseFloat(list.get(3).toString()),Float.parseFloat(list.get(4).toString()),Float.parseFloat(list.get(5).toString()),Float.parseFloat(list.get(6).toString()),Float.parseFloat(list.get(7).toString()),Float.parseFloat(list.get(8).toString()),Float.parseFloat(list.get(9).toString()),Float.parseFloat(list.get(10).toString()),Float.parseFloat(list.get(11).toString()),Float.parseFloat(list.get(12).toString()),Float.parseFloat(list.get(13).toString()),Float.parseFloat(list.get(14).toString()),list.get(15).toString(),Float.parseFloat(list.get(16).toString()),(Date)list.get(17));
+                    //System.out.println(e);为什么没有添加成功？？？？？？？？？？？？？？？
+                    elefeeService.importRecordEle(e);
+                }
+            }//外层for循环
         }catch (Exception e){
             e.printStackTrace();
             System.out.println("有异常！！！");
         }
-        //System.out.println("上传文件到:" + path + newFileName);
-        System.out.println("输出完毕*************************************");
         return "/error.jsp";
     }
 
@@ -209,9 +237,10 @@ public class ElefeeController {
             if(ele.getMonthfolding()!=null)
             row.createCell(15).setCellValue(ele.getMonthfolding());
             if(ele.getImportdate()!=null){
+                //格式化日期转换器把从数据库中取出的datetime类型转换为date类型
                 String data = DateFormat.getDateInstance().format(ele.getImportdate());
-                System.out.println(data);
-                row.createCell(16).setCellValue(data);
+                //System.out.println(data);
+                row.createCell(16).setCellValue(data);//把date类型设置到单元格里（yy-MM-dd）
             }
 
         }

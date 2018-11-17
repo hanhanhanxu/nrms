@@ -9,4 +9,5 @@ public interface ElefeeService {
     List<ElectricityFees> findElePage(int pageNow, int size);
     List<ElectricityFees> findAll();
     List<ElectricityFees> conditionquery(String sitename,String year,String month);
+    void importRecordEle(ElectricityFees e);
 }

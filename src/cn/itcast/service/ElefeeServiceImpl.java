@@ -43,4 +43,9 @@ public class ElefeeServiceImpl implements ElefeeService {
             return null;
         return list;
     }
+
+    @Override
+    public void importRecordEle(ElectricityFees e) {//插入全部
+        electricityFeesMapper.insertEle(e);
+    }
 }

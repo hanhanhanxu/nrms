@@ -8,7 +8,7 @@ import java.util.Date;
 public class ElectricityFees {
     private String  eleF_id;
     private String sitename;
-    private Float unitprice;
+    private Float unitprice;//
     private Float balance;
     private Float predeposit;
     private Float meterrise;
@@ -27,6 +27,29 @@ public class ElectricityFees {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date importdate;
 
+    public ElectricityFees() {
+    }
+
+    public ElectricityFees(String eleF_id, String sitename, Float unitprice, Float balance, Float predeposit, Float meterrise, Float meterstop, Float eleconsumption, Float loss, Float taxation, Float agriculturaleleadd, Float bSARUnicom, Float bSARMobile, Float bSARTelecom, Float totalcost, String meterreading, Float monthfolding, Date importdate) {
+        this.eleF_id = eleF_id;
+        this.sitename = sitename;
+        this.unitprice = unitprice;
+        this.balance = balance;
+        this.predeposit = predeposit;
+        this.meterrise = meterrise;
+        this.meterstop = meterstop;
+        this.eleconsumption = eleconsumption;
+        this.loss = loss;
+        this.taxation = taxation;
+        this.agriculturaleleadd = agriculturaleleadd;
+        this.bSARUnicom = bSARUnicom;
+        this.bSARMobile = bSARMobile;
+        this.bSARTelecom = bSARTelecom;
+        this.totalcost = totalcost;
+        this.meterreading = meterreading;
+        this.monthfolding = monthfolding;
+        this.importdate = importdate;
+    }
 
     public Date getImportdate() {
         return importdate;

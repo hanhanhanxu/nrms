@@ -39,5 +39,9 @@
         select * from ElectricityFees where Sitename = #{0}
     </select>
 
+    <insert id="insertEle" parameterType="cn.itcast.pojo.ElectricityFees" >
+        insert into ElectricityFees values (EleF_id,Sitename,Unitprice,Balance,Predeposit,Meterrise,Meterstop,Eleconsumption,loss,Taxation,Agriculturaleleadd,BSARUnicom,BSARMobile,Totalcost,Meterreading,Monthfolding,Importdate)
+    </insert>
+
 
 </mapper>
