@@ -2,11 +2,13 @@ package cn.itcast.service;
 
 import cn.itcast.mapper.ElectricityFeesMapper;
 import cn.itcast.pojo.ElectricityFees;
+import cn.itcast.util.WebUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ElefeeServiceImpl implements ElefeeService {
@@ -46,6 +48,7 @@ public class ElefeeServiceImpl implements ElefeeService {
 
     @Override
     public void importRecordEle(ElectricityFees e) {//插入全部
+        e.setEleF_id(WebUtils.generateID());
         electricityFeesMapper.insertEle(e);
     }
 }

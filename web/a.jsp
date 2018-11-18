@@ -29,6 +29,9 @@
         <tbody>
         <tr>
             <td width="100px">
+                站址编号
+            </td>
+            <td width="100px">
                 站址名称
             </td>
             <td width="50px">
@@ -82,6 +85,9 @@
         </tr>
         <c:forEach items="${list}" var="ele">
             <tr>
+                <td>
+                        ${ele.sitenum}
+                </td>
                 <td>
                         ${ele.sitename}
                 </td>

@@ -67,10 +67,9 @@ public class ElefeeController {
 
     @RequestMapping("/addRecordEle")
     public String addRecordEle(@RequestParam("file") CommonsMultipartFile file,
-                            HttpServletRequest request) {
+                               HttpServletRequest request) {
         // 获得项目的路径
         ServletContext sc = request.getSession().getServletContext();
-        System.out.println("项目的路径：" + sc);
         // 上传位置
         String path = sc.getRealPath("\\table") + "\\"; // 设定文件保存的目录
         System.out.println("文件保存的路径：" + path);
@@ -98,62 +97,72 @@ public class ElefeeController {
                 e.printStackTrace();
             }
         }
+
+
+        HSSFWorkbook workbook = null;
         try {
-            HSSFWorkbook workbook = new HSSFWorkbook(new FileInputStream(new File(path + newFileName)));
-            HSSFSheet sheet = null;
-            int i = workbook.getSheetIndex("成绩表"); // sheet表名
-            sheet = workbook.getSheetAt(i);
-            List list = new ArrayList();
-
-            //如果有8行数据  则sheet.getLastRowNum()为7
-            int j = 0;
-            for (j = 0; j < sheet.getLastRowNum() + 1; j++) {
-                HSSFRow row = sheet.getRow(j);
-                if (row != null) {
-                    //如果有18列数据  则row.getLastCellNum()为18
-                    for (int k = 0; k < row.getLastCellNum(); k++) {
-                        if (row.getCell(k) != null) {
-                            if(k==r){
-                                //添加第18列日期数据
-                                String[] Dstring = row.getCell(k).toString().split("\\.");
-                                if(3==Dstring.length){
-                                    String dstr = new String(Dstring[0]+"-"+Dstring[1]+"-"+Dstring[2]);
-                                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                                    Date date  = null;
-                                    try {
-                                        date  = sdf.parse(dstr);
-                                    }catch (Exception e){
-                                        e.printStackTrace();
-                                        System.out.println("创建时间有异常***");
-                                    }
-                                    list.add(date);
-                                }else{
-                                    list.add(row.getCell(k));//第18列也有可能不是日期数据
-                                }
-                            }else{
-                                list.add(row.getCell(k));//添加前17列非日期数据
-                            }
-                            //System.out.print(row.getCell(k) + "\t");//输出数据
-                        } else {
-                            list.add("");//把空串添加进去
-                            //System.out.print("\t");//把空的地方输出
-                        }
-                    }//内层for循环
-                }
-                //System.out.println("");//换行输出
-
-                //第一行列头不弄进数据库
-                if(j>1){
-                    ElectricityFees e = new ElectricityFees(list.get(0).toString(),list.get(1).toString(),Float.parseFloat(list.get(2).toString()),Float.parseFloat(list.get(3).toString()),Float.parseFloat(list.get(4).toString()),Float.parseFloat(list.get(5).toString()),Float.parseFloat(list.get(6).toString()),Float.parseFloat(list.get(7).toString()),Float.parseFloat(list.get(8).toString()),Float.parseFloat(list.get(9).toString()),Float.parseFloat(list.get(10).toString()),Float.parseFloat(list.get(11).toString()),Float.parseFloat(list.get(12).toString()),Float.parseFloat(list.get(13).toString()),Float.parseFloat(list.get(14).toString()),list.get(15).toString(),Float.parseFloat(list.get(16).toString()),(Date)list.get(17));
-                    //System.out.println(e);为什么没有添加成功？？？？？？？？？？？？？？？
-                    elefeeService.importRecordEle(e);
-                }
-            }//外层for循环
+            workbook = new HSSFWorkbook(new FileInputStream(new File(path + newFileName)));
         }catch (Exception e){
             e.printStackTrace();
             System.out.println("有异常！！！");
         }
-        return "/error.jsp";
+        HSSFSheet sheet = null;
+        int i = workbook.getSheetIndex("成绩表"); // sheet表名
+        sheet = workbook.getSheetAt(i);
+
+        //如果有8行数据  则sheet.getLastRowNum()为7
+        int j = 0;
+        for (j = 0; j < sheet.getLastRowNum() + 1; j++) {
+            HSSFRow row = sheet.getRow(j);
+            List list = new ArrayList();
+            if (row != null) {
+                //如果有18列数据  则row.getLastCellNum()为18
+                for (int k = 0; k < row.getLastCellNum(); k++) {
+                    if (row.getCell(k) != null) {
+                        if(k==r){
+                            //添加第18列日期数据
+                            String[] Dstring = row.getCell(k).toString().split("-");
+                            if(3==Dstring.length){
+                                String dstr = new String(Dstring[0]+"-"+Dstring[1]+"-"+Dstring[2]);
+                                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                                Date date  = null;
+                                try {//转换为date类型放到数据库中Mon Sep 10 00:00:00 CST 2018
+                                    date  = sdf.parse(dstr);
+                                    System.out.println(date);
+                                }catch (Exception e){
+                                    e.printStackTrace();
+                                    System.out.println("excel表格到入到数据库中-转换为date时有异常***");
+                                }
+                                list.add(date);
+                            }else{
+                                list.add(row.getCell(k));//第18列也有可能不是日期数据
+                            }
+                        }else{
+                            list.add(row.getCell(k));//添加前17列非日期数据
+                        }
+                        //System.out.print(row.getCell(k) + "\t");//输出数据
+                    } else {
+                        list.add("");//把空串添加进去
+                        //System.out.print("\t");//把空的地方输出
+                    }
+                }//内层for循环
+            }
+            //System.out.println("");//换行输出
+            Iterator it = list.iterator();
+            while(it.hasNext()){
+                System.out.print(it.next() + "\t");
+            }
+            System.out.println("");
+            System.out.println(j);
+            System.out.println(list.size());
+            //第一行列头不弄进数据库
+            if(j>0){
+                ElectricityFees e = new ElectricityFees(list.get(0).toString(),list.get(1).toString(),Float.parseFloat(list.get(2).toString()),Float.parseFloat(list.get(3).toString()),Float.parseFloat(list.get(4).toString()),Float.parseFloat(list.get(5).toString()),Float.parseFloat(list.get(6).toString()),Float.parseFloat(list.get(7).toString()),Float.parseFloat(list.get(8).toString()),Float.parseFloat(list.get(9).toString()),Float.parseFloat(list.get(10).toString()),Float.parseFloat(list.get(11).toString()),Float.parseFloat(list.get(12).toString()),Float.parseFloat(list.get(13).toString()),Float.parseFloat(list.get(14).toString()),list.get(15).toString(),Float.parseFloat(list.get(16).toString()),(Date)list.get(17));
+                elefeeService.importRecordEle(e);
+            }
+        }//外层for循环
+
+        return "/ElefeeController/findElePage.action";
     }
 
     @RequestMapping("/down")//导出为xls后缀的excel文件
@@ -161,7 +170,7 @@ public class ElefeeController {
         int size = 50;//jsp页面每页显示多少条数据
         int countAll = elefeeService.findEleCont();//数据库中的总记录数
         int count = 0;//用来存放该打印出多少条记录
-        int column = 17;//表格有多少列
+        int column = 18;//表格有多少列
         //从数据库拿出当前jsp页面显示的所有数据
         List list = elefeeService.findElePage(Integer.parseInt(pageNow.trim()),size);
         //如果是最后一页，则需要打印出的记录数就不一定是size了，那么就算一下
@@ -181,66 +190,69 @@ public class ElefeeController {
         //在sheet里创建第一行，参数为行索引(excel的行)，可以是0～65535之间的任何一个
         HSSFRow row1=sheet.createRow(0);//第一行
         //创建单元格（excel的单元格，参数为列索引，可以是0～255之间的任何一个
-        row1.createCell(0).setCellValue("站址名称");
-        row1.createCell(1).setCellValue("单价-元");
-        row1.createCell(2).setCellValue("上月余额");
-        row1.createCell(3).setCellValue("本月预存");
-        row1.createCell(4).setCellValue("电表起度");
-        row1.createCell(5).setCellValue("电表止度");
-        row1.createCell(6).setCellValue("用电量-度");
-        row1.createCell(7).setCellValue("损耗-元");
+        row1.createCell(0).setCellValue("站址编号");
+        row1.createCell(1).setCellValue("站址名称");
+        row1.createCell(2).setCellValue("单价-元");
+        row1.createCell(3).setCellValue("上月余额");
+        row1.createCell(4).setCellValue("本月预存");
+        row1.createCell(5).setCellValue("电表起度");
+        row1.createCell(6).setCellValue("电表止度");
+        row1.createCell(7).setCellValue("用电量-度");
         row1.createCell(8).setCellValue("损耗-元");
-        row1.createCell(9).setCellValue("农电附加-元");
-        row1.createCell(10).setCellValue("基站分摊比例-联通");
-        row1.createCell(11).setCellValue("基站分摊比例-移动");
-        row1.createCell(12).setCellValue("基站分摊比例-电信");
-        row1.createCell(13).setCellValue("总费用-元");
-        row1.createCell(14).setCellValue("抄表期间");
-        row1.createCell(15).setCellValue("折月");
-        row1.createCell(16).setCellValue("导入日期");
+        row1.createCell(9).setCellValue("损耗-元");
+        row1.createCell(10).setCellValue("农电附加-元");
+        row1.createCell(11).setCellValue("基站分摊比例-联通");
+        row1.createCell(12).setCellValue("基站分摊比例-移动");
+        row1.createCell(13).setCellValue("基站分摊比例-电信");
+        row1.createCell(14).setCellValue("总费用-元");
+        row1.createCell(15).setCellValue("抄表期间");
+        row1.createCell(16).setCellValue("折月");
+        row1.createCell(17).setCellValue("导入日期");
 
         HSSFRow row = null;
         for(int i=1;i<=count;i++){
             row = sheet.createRow(i);//在sheet里创建第i+1行  第i行是表头
             ElectricityFees ele = (ElectricityFees)list.get(i-1);
 
+            if(ele.getSitenum()!=null)
+                row.createCell(0).setCellValue(ele.getSitenum());
             if(ele.getSitename()!=null)
-            row.createCell(0).setCellValue(ele.getSitename());
+                row.createCell(1).setCellValue(ele.getSitename());
             if(ele.getUnitprice()!=null)
-            row.createCell(1).setCellValue(ele.getUnitprice());
+                row.createCell(2).setCellValue(ele.getUnitprice());
             if(ele.getBalance()!=null)
-            row.createCell(2).setCellValue(ele.getBalance());
+                row.createCell(3).setCellValue(ele.getBalance());
             if(ele.getPredeposit()!=null)
-            row.createCell(3).setCellValue(ele.getPredeposit());
+                row.createCell(4).setCellValue(ele.getPredeposit());
             if(ele.getMeterrise()!=null)
-            row.createCell(4).setCellValue(ele.getMeterrise());
+                row.createCell(5).setCellValue(ele.getMeterrise());
             if(ele.getMeterstop()!=null)
-            row.createCell(5).setCellValue(ele.getMeterstop());
+                row.createCell(6).setCellValue(ele.getMeterstop());
             if(ele.getEleconsumption()!=null)
-            row.createCell(6).setCellValue(ele.getEleconsumption());
+                row.createCell(7).setCellValue(ele.getEleconsumption());
             if(ele.getLoss()!=null)
-            row.createCell(7).setCellValue(ele.getLoss());
+                row.createCell(8).setCellValue(ele.getLoss());
             if(ele.getTaxation()!=null)
-            row.createCell(8).setCellValue(ele.getTaxation());
+                row.createCell(9).setCellValue(ele.getTaxation());
             if(ele.getAgriculturaleleadd()!=null)
-            row.createCell(9).setCellValue(ele.getAgriculturaleleadd());
+                row.createCell(10).setCellValue(ele.getAgriculturaleleadd());
             if(ele.getbSARUnicom()!=null)
-            row.createCell(10).setCellValue(ele.getbSARUnicom());
+                row.createCell(11).setCellValue(ele.getbSARUnicom());
             if(ele.getbSARMobile()!=null)
-            row.createCell(11).setCellValue(ele.getbSARMobile());
+                row.createCell(12).setCellValue(ele.getbSARMobile());
             if(ele.getbSARTelecom()!=null)
-            row.createCell(12).setCellValue(ele.getbSARTelecom());
+                row.createCell(13).setCellValue(ele.getbSARTelecom());
             if(ele.getTotalcost()!=null)
-            row.createCell(13).setCellValue(ele.getTotalcost());
+                row.createCell(14).setCellValue(ele.getTotalcost());
             if(ele.getMeterreading()!=null)
-            row.createCell(14).setCellValue(ele.getMeterreading());
+                row.createCell(15).setCellValue(ele.getMeterreading());
             if(ele.getMonthfolding()!=null)
-            row.createCell(15).setCellValue(ele.getMonthfolding());
+                row.createCell(16).setCellValue(ele.getMonthfolding());
             if(ele.getImportdate()!=null){
                 //格式化日期转换器把从数据库中取出的datetime类型转换为date类型
                 String data = DateFormat.getDateInstance().format(ele.getImportdate());
                 //System.out.println(data);
-                row.createCell(16).setCellValue(data);//把date类型设置到单元格里（yy-MM-dd）
+                row.createCell(17).setCellValue(data);//把date类型设置到单元格里（yy-MM-dd）
             }
 
         }

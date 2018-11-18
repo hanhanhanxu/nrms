@@ -1,12 +1,14 @@
 package cn.itcast.pojo;
 
+import cn.itcast.util.WebUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
-
+//19个属性  去掉id   excel表格中18个可设置属性
 public class ElectricityFees {
     private String  eleF_id;
+    private String sitenum;
     private String sitename;
     private Float unitprice;//
     private Float balance;
@@ -30,8 +32,8 @@ public class ElectricityFees {
     public ElectricityFees() {
     }
 
-    public ElectricityFees(String eleF_id, String sitename, Float unitprice, Float balance, Float predeposit, Float meterrise, Float meterstop, Float eleconsumption, Float loss, Float taxation, Float agriculturaleleadd, Float bSARUnicom, Float bSARMobile, Float bSARTelecom, Float totalcost, String meterreading, Float monthfolding, Date importdate) {
-        this.eleF_id = eleF_id;
+    public ElectricityFees(String sitenum, String sitename, Float unitprice, Float balance, Float predeposit, Float meterrise, Float meterstop, Float eleconsumption, Float loss, Float taxation, Float agriculturaleleadd, Float bSARUnicom, Float bSARMobile, Float bSARTelecom, Float totalcost, String meterreading, Float monthfolding, Date importdate) {
+        this.sitenum = sitenum;
         this.sitename = sitename;
         this.unitprice = unitprice;
         this.balance = balance;
@@ -51,14 +53,6 @@ public class ElectricityFees {
         this.importdate = importdate;
     }
 
-    public Date getImportdate() {
-        return importdate;
-    }
-
-    public void setImportdate(Date importdate) {
-        this.importdate = importdate;
-    }
-
     public String getEleF_id() {
         return eleF_id;
     }
@@ -66,6 +60,15 @@ public class ElectricityFees {
     public void setEleF_id(String eleF_id) {
         this.eleF_id = eleF_id;
     }
+
+    public String getSitenum() {
+        return sitenum;
+    }
+
+    public void setSitenum(String sitenum) {
+        this.sitenum = sitenum;
+    }
+
 
     public String getSitename() {
         return sitename;
@@ -193,5 +196,13 @@ public class ElectricityFees {
 
     public void setMonthfolding(Float monthfolding) {
         this.monthfolding = monthfolding;
+    }
+
+    public Date getImportdate() {
+        return importdate;
+    }
+
+    public void setImportdate(Date importdate) {
+        this.importdate = importdate;
     }
 }
