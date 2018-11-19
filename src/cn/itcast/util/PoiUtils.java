@@ -6,10 +6,8 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class PoiUtils {
 
@@ -84,5 +82,31 @@ public class PoiUtils {
         }//外层for循环
 
         return map;
+    }
+
+    public static String str2date(String str,String regex){
+        System.out.println("在str2date函数中regex为：" + regex);
+        System.out.println("在str2date函数中row.getCell(k).toString()为：" + str);
+
+        String dstr = null;
+        String[] Dstring = str.split(regex);//按规格切割
+        if (3 == Dstring.length) {//已经不是表头了，再切不成三块，那就是不匹配，直接返回10101
+            System.out.println("在str2date函数中切割后的数据，Dstring[0] + Dstring[1] + Dstring[2]：" + Dstring[0] + Dstring[1] + Dstring[2]);
+            if(WebUtils.isDigit(Dstring[1])==false){//是汉字，将  九月  转换为 9
+                System.out.println("转换前Dstring[1]："+Dstring[1]);
+                Dstring[1] =  WebUtils.word2num(Dstring[1]);
+                System.out.println("转换后Dstring[1]："+Dstring[1]);
+            }
+            //将其组合成   年 月 日   的顺序
+            if(Dstring[2].length()>Dstring[0].length()) {//不管是不是excel表格日期格式与选择的格式统一，都比一下，即使有混杂的情况也能解决
+                dstr = new String(Dstring[2] + "-" + Dstring[1] + "-" + Dstring[0]);
+            }else{
+                dstr = new String(Dstring[0] + "-" + Dstring[1] + "-" + Dstring[2]);
+            }
+            System.out.println("在str2date函数中组合之后的字符串：" + dstr);
+        }else{
+            dstr = "10101";
+        }
+        return dstr;
     }
 }

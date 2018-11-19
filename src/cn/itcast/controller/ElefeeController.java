@@ -3,6 +3,7 @@ package cn.itcast.controller;
 import cn.itcast.pojo.ElectricityFees;
 import cn.itcast.pojo.Page;
 import cn.itcast.service.ElefeeService;
+import cn.itcast.util.PoiUtils;
 import cn.itcast.util.WebUtils;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
@@ -131,51 +132,33 @@ public class ElefeeController {
                 //如果有18列数据  则row.getLastCellNum()为18
                 for (int k = 0; k < row.getLastCellNum(); k++) {
                     if (row.getCell(k) != null) {
+                        //添加第18列日期数据
                         if (k == r) {
-                            //添加第18列日期数据
-                            //System.out.println("从excel表格读取出来的日期数据：" + row.getCell(k));
-                            //2004.9.11  ----->  2004.9.11
-                            //2018/9/19  ----->  19-九月-2018
-                            //2018-10-13 ----->  2018-10-13
-                            /*
-                            但是如果是刚刚利用系统导出的excel表格  日期是这样的  2018-10-13  单元格格式 常规
-                            当你鼠标点进那个单元格的话日期就会变成这样           2018/10/13  单元格格式 日期
-                            所以如果用刚刚利用系统导出的excel表格直接导入系统的话
-                            会出现不确定情况  ，  所以建议自己写excel表格日期格式 2004.9.11  这样写
-                            不出变化   好判断
-                             */
-                            //System.out.println("从excel读出的数据："+row.getCell(k));
-                            String[] Dstring = row.getCell(k).toString().split(regex);
-                            if (3 == Dstring.length) {
-                                //System.out.println("切割后的数据" + Dstring[0] + Dstring[1] + Dstring[2]);
-                                String dstr = null;
-                                if("3".equals(datetype)) {//是日期格式的话全部转换一下，文字转数字
-                                    if(Dstring[2].length()>Dstring[0].length())
-                                        dstr = new String(Dstring[2] + "-" + WebUtils.word2num(Dstring[1]) + "-" + Dstring[0]);
-                                    else
-                                        dstr = new String(Dstring[0] + "-" + WebUtils.word2num(Dstring[1]) + "-" + Dstring[2]);
+                            String[] Dstring = row.getCell(k).toString().split("\\.");
+                            String[] Dstring2 = row.getCell(k).toString().split("-");
+                            if (3 == Dstring.length || 3==Dstring2.length) {//如果能切割成3串的话，非表头
+                                String datestr = PoiUtils.str2date(row.getCell(k).toString(),regex);//转换格式 yy-MM-dd
+                                if("10101".equals(datestr)){//非表头还不能转换，那就是选择切割的符号不匹配
+                                    System.out.println("excel表格日期格式不正确！**************");
+                                    request.setAttribute("error","excel表格日期格式不正确！请设置为形如   2018.9.10   这样的格式，或检查excel表格中的日期格式是否与选择的日期格式统一。");
+                                    return "/error.jsp";
+                                }else{
+                                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                                    Date date = null;
+                                    try {//转换为date类型放到数据库中Mon Sep 10 00:00:00 CST 2018
+                                        date = sdf.parse(datestr);
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                        System.out.println("excel表格到入到数据库中-转换为date时有异常***");
+                                    }
+                                    list.add(date);//把时间放进去
+                                    System.out.println("把时间放进去：" + date);
                                 }
-                                else{//不是的话直接用切割后的  不管用不用转换全部要比一下长度，因为怕选择了日期格式但是上传了非日期格式的
-                                    if(Dstring[2].length()>Dstring[0].length())
-                                        dstr = new String(Dstring[2] + "-" + Dstring[1] + "-" + Dstring[0]);
-                                    else
-                                        dstr = new String(Dstring[0] + "-" + Dstring[1] + "-" + Dstring[2]);
-                                }
-                                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                                Date date = null;
-                                try {//转换为date类型放到数据库中Mon Sep 10 00:00:00 CST 2018
-                                    date = sdf.parse(dstr);
-                                    //System.out.println(date);
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                    System.out.println("excel表格到入到数据库中-转换为date时有异常***");
-                                }
-                                list.add(date);
-                            } else {
+                            } else {//处理表头情况
                                 list.add(row.getCell(k));//第18列也有可能不是日期数据
                             }
-                        } else {
-                            list.add(row.getCell(k));//添加前17列非日期数据
+                        } else {//添加前17列数据
+                            list.add(row.getCell(k));
                         }
                         //System.out.print(row.getCell(k) + "\t");//输出数据
                     } else {
@@ -200,9 +183,6 @@ public class ElefeeController {
                 }
             }catch (Exception e){
                 e.printStackTrace();
-                System.out.println("excel表格日期格式不正确！*************");
-                request.setAttribute("error","excel表格日期格式不正确！请设置为形如   2018.9.10   这样的格式。");
-                return "/error.jsp";
             }
 
         }//外层for循环

@@ -65,6 +65,12 @@ public class WebUtils {
         return obj;
     }
 
+    // 判断一个字符串是否为数字
+    public static boolean isDigit(String strNum) {
+        Boolean strResult = strNum.matches("-[0-9]+(.[0-9]+)?|[0-9]+(.[0-9]+)?");
+        return strResult;
+    }
+
     public static String word2num(String word){
         if(word==null || "".equals(word))
             return "0";//0代表为空 出错
