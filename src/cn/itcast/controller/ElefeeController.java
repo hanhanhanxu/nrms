@@ -3,6 +3,7 @@ package cn.itcast.controller;
 import cn.itcast.pojo.ElectricityFees;
 import cn.itcast.pojo.Page;
 import cn.itcast.service.ElefeeService;
+import cn.itcast.util.WebUtils;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Cell;
@@ -67,7 +68,17 @@ public class ElefeeController {
 
     @RequestMapping("/addRecordEle")
     public String addRecordEle(@RequestParam("file") CommonsMultipartFile file,
-                               HttpServletRequest request) {
+                               HttpServletRequest request, String datetype) {
+
+        String regex = null;
+        if(datetype==null || "".equals(datetype))
+            regex = ".";//意外情况出现 ， 默认是 . 的格式 2004.9.11
+        if("2".equals(datetype) || "3".equals(datetype))
+            regex = "-";
+        else
+            regex = "\\.";
+        System.out.println(datetype);
+        System.out.println(regex);
         // 获得项目的路径
         ServletContext sc = request.getSession().getServletContext();
         // 上传位置
@@ -133,9 +144,23 @@ public class ElefeeController {
                             会出现不确定情况  ，  所以建议自己写excel表格日期格式 2004.9.11  这样写
                             不出变化   好判断
                              */
-                            String[] Dstring = row.getCell(k).toString().split("\\.");
+                            //System.out.println("从excel读出的数据："+row.getCell(k));
+                            String[] Dstring = row.getCell(k).toString().split(regex);
                             if (3 == Dstring.length) {
-                                String dstr = new String(Dstring[0] + "-" + Dstring[1] + "-" + Dstring[2]);
+                                //System.out.println("切割后的数据" + Dstring[0] + Dstring[1] + Dstring[2]);
+                                String dstr = null;
+                                if("3".equals(datetype)) {//是日期格式的话全部转换一下，文字转数字
+                                    if(Dstring[2].length()>Dstring[0].length())
+                                        dstr = new String(Dstring[2] + "-" + WebUtils.word2num(Dstring[1]) + "-" + Dstring[0]);
+                                    else
+                                        dstr = new String(Dstring[0] + "-" + WebUtils.word2num(Dstring[1]) + "-" + Dstring[2]);
+                                }
+                                else{//不是的话直接用切割后的  不管用不用转换全部要比一下长度，因为怕选择了日期格式但是上传了非日期格式的
+                                    if(Dstring[2].length()>Dstring[0].length())
+                                        dstr = new String(Dstring[2] + "-" + Dstring[1] + "-" + Dstring[0]);
+                                    else
+                                        dstr = new String(Dstring[0] + "-" + Dstring[1] + "-" + Dstring[2]);
+                                }
                                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                                 Date date = null;
                                 try {//转换为date类型放到数据库中Mon Sep 10 00:00:00 CST 2018

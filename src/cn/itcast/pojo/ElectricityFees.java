@@ -32,6 +32,7 @@ public class ElectricityFees {
     public ElectricityFees() {
     }
 
+    //此构造方法专为导出excel表格时使用  没有id构造，id构造在sevice层
     public ElectricityFees(String sitenum, String sitename, Float unitprice, Float balance, Float predeposit, Float meterrise, Float meterstop, Float eleconsumption, Float loss, Float taxation, Float agriculturaleleadd, Float bSARUnicom, Float bSARMobile, Float bSARTelecom, Float totalcost, String meterreading, Float monthfolding, Date importdate) {
         this.sitenum = sitenum;
         this.sitename = sitename;

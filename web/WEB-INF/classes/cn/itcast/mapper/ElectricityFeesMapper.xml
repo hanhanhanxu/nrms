@@ -23,7 +23,7 @@
 
 
     <select id="findEleCont" resultType="Integer">
-        select COUNT(*) from ElectricityFees
+        select COUNT(EleF_id) from ElectricityFees
     </select>
 
     <select id="findElePage" parameterType="int" resultType="cn.itcast.pojo.ElectricityFees">

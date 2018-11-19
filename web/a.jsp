@@ -10,7 +10,22 @@
 <div>
     <form method="post" action="${pageContext.request.contextPath}/ElefeeController/addRecordEle.action" enctype="multipart/form-data">
         <input type="file" name="file" width="120px">
-        <input id="sub" type="submit" value="导入excel表格">
+        <table>
+            <tr>
+                <td>excel表格中的日期格式：</td>
+                <td>
+                    <select name="datetype">
+                        <option value="1">形如：2018.10.13</option>
+                        <option value="2">形如：2018-10-13</option>
+                        <option value="3">形如：2018/10/13(excel表格中设置为了日期格式)</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td><input id="sub" type="submit" value="导入excel表格"></td>
+                <td></td>
+            </tr>
+        </table>
     </form>
 </div>
 <div class="pager">
@@ -25,7 +40,7 @@
         <input type="text" name="month">&nbsp&nbsp
         <input type="submit" value="搜 索">
     </form>
-    <table border="2px" align="center" width="1550px">
+    <table border="2px" align="center">
         <tbody>
         <tr>
             <td width="100px">
@@ -146,7 +161,18 @@
     <form action="${pageContext.request.contextPath}/ElefeeController/down.action" method="post">
         <input type="hidden" value="${page.totalPageCount}" name="totalPageCount">
         <input type="hidden" value="${page.pageNow}" name="pageNow">
-        <input name="button" value="导出为excel表格" type="submit">
+
+        <table>
+            <tr>
+                <td></td>
+                <td>
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td><input name="button" value="导出为excel表格" type="submit"></td>
+            </tr>
+        </table>
     </form>
     <br>
 
@@ -181,10 +207,6 @@
             </c:otherwise>
         </c:choose>
     </div>
-    <%--
-        <a target="_blank" href="${pageContext.request.contextPath}/.action?isPrint=true"
-        class="button button-primary button-small">导出到Excel表格</a>
-    --%>
 
 
 </div>

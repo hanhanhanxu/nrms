@@ -64,4 +64,35 @@ public class WebUtils {
         }
         return obj;
     }
+
+    public static String word2num(String word){
+        if(word==null || "".equals(word))
+            return "0";//0代表为空 出错
+        else if("十二月".equals(word))
+            return "12";
+        else if("十一月".equals(word))
+            return "11";
+        else if("十月".equals(word))
+            return "10";
+        else if("九月".equals(word))
+            return "9";
+        else if("八月".equals(word))
+            return "8";
+        else if("七月".equals(word))
+            return "7";
+        else if("六月".equals(word))
+            return "6";
+        else if("五月".equals(word))
+            return "5";
+        else if("四月".equals(word))
+            return "4";
+        else if("三月".equals(word))
+            return "3";
+        else if("二月".equals(word))
+            return "2";
+        else if("一月".equals(word))
+            return "1";
+        else
+            return "13";//13代表不是任何一月
+    }
 }
