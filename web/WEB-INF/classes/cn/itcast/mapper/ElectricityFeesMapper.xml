@@ -29,10 +29,11 @@
     <select id="findElePage" parameterType="int" resultType="cn.itcast.pojo.ElectricityFees">
       SELECT TOP 50 * FROM ElectricityFees
       WHERE (EleF_id not in (SELECT TOP ${value} EleF_id FROM ElectricityFees))
+      order by Importdate DESC
     </select>
 
     <select id="findAll" resultType="cn.itcast.pojo.ElectricityFees">
-        select * from ElectricityFees
+        select * from ElectricityFees order by Importdate DESC
     </select>
 
     <select id="conditionquery" parameterType="string" resultType="cn.itcast.pojo.ElectricityFees">
